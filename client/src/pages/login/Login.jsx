@@ -1,0 +1,73 @@
+import { Link, useNavigate } from 'react-router-dom'
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import './login.css'
+import { useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../../redux/actions/authActions';
+function Login() {
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+    const { isLoading, error, user } = useSelector((state) => state.auth)
+    const form = useRef({})
+
+    const handleForm = (e) => {
+        e.preventDefault()
+        // console.log(form.current);
+        if (!form.current.username.trim()) {
+            console.log(true);
+            return
+        }
+        if (!form.current.password.trim()) {
+            console.log(true);
+            return
+        }
+
+        dispatch(loginUser(form.current))
+        console.log(user);
+        if(user.data.success) {
+            navigate('/')
+        }
+
+
+    }
+
+
+    return (
+        <>
+            <div style={{ width: "100%", display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+
+                <form className="form" onSubmit={handleForm}>
+                    <div className="flex-column">
+                        <label>Username </label></div>
+                    <div className="inputForm">
+                        <AlternateEmailIcon />
+                        <input placeholder="Enter your username" name='username' className="input" type="text" onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} required />
+                    </div>
+
+                    <div className="flex-column">
+                        <label>Password </label></div>
+                    <div className="inputForm">
+                        <LockOutlinedIcon />
+                        <input placeholder="Enter your Password" name='password' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="input" type="password" required />
+                    </div>
+
+                    {/* <div className="flex-row">
+                        <div>
+                            <input type="radio" />
+                            <label> Remember me </label>
+                        </div>
+                        <span className="span">Forgot password?</span>
+                    </div> */}
+                    {error && <p>{error}</p>}
+                    <button className="button-submit">Sign In</button>
+                    <p className="p">Don't have an account? <Link to={'/signup'} className="link">Sign Up</Link>
+                    </p>
+                </form>
+            </div>
+        </>
+    )
+}
+
+export default Login
