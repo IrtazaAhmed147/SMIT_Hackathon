@@ -21,7 +21,7 @@ function App() {
 
 
         <Route path='/' index element={
-          <ProtectedRoute isAuthenticated={true}>
+          <ProtectedRoute>
             <Navbar />
             <Home />
           </ProtectedRoute>

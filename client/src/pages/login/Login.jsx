@@ -2,9 +2,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import './login.css'
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/actions/authActions';
+import { CircularProgress } from '@mui/material';
 function Login() {
 
     const dispatch = useDispatch();
@@ -12,22 +13,21 @@ function Login() {
     const { isLoading, error, user } = useSelector((state) => state.auth)
     const form = useRef({})
 
-    const handleForm = (e) => {
-        e.preventDefault()
-        // console.log(form.current);
-        if (!form.current.username.trim()) {
-            console.log(true);
-            return
-        }
-        if (!form.current.password.trim()) {
-            console.log(true);
-            return
-        }
 
-        dispatch(loginUser(form.current))
-        console.log(user);
-        if(user.data.success) {
+    useEffect(() => {
+        if (user) {
             navigate('/')
+        }
+    }, [user])
+
+    const handleForm = async (e) => {
+        e.preventDefault()
+
+        if (!form.current.username.trim() || !form.current.password.trim()) return;
+        try {
+            dispatch(loginUser(form.current))
+        } catch (error) {
+            console.log(error);
         }
 
 
@@ -61,7 +61,10 @@ function Login() {
                         <span className="span">Forgot password?</span>
                     </div> */}
                     {error && <p>{error}</p>}
-                    <button className="button-submit">Sign In</button>
+                    <button disabled={isLoading}  className="button-submit">
+                        {isLoading && <CircularProgress color="inherit" size="20px" />}
+
+                         Sign In</button>
                     <p className="p">Don't have an account? <Link to={'/signup'} className="link">Sign Up</Link>
                     </p>
                 </form>

@@ -18,7 +18,7 @@ const authSlice = createSlice({
             state.isLoading = false
             state.error = null
             state.user = payload
-            localStorage.setItem("user", JSON.stringify(state.user))
+            localStorage.setItem("user", JSON.stringify(payload))
         },
         loginFailure: (state, action) => {
             state.isLoading = false;
@@ -29,10 +29,9 @@ const authSlice = createSlice({
             state.error = null
 
         },
-        signupSuccess: (state, { payload }) => {
+        signupSuccess: (state) => {
             state.isLoading = false
             state.error = null
-            state.user = payload
         },
         signupFailure: (state, action) => {
             state.isLoading = false;
@@ -41,5 +40,5 @@ const authSlice = createSlice({
     }
 })
 
-export const { loginStart, loginSuccess, loginFailure } = authSlice.actions
+export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure } = authSlice.actions
 export default authSlice.reducer

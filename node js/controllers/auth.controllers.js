@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js'
-import { createError, sendError } from '../utils/error.js'
+import {  sendError } from '../utils/error.js'
 import bcrypt from "bcryptjs";
 
 export const register = async (req, res, next) => {
@@ -37,7 +37,9 @@ export const login = async (req, res, next) => {
         const isPasswordCorrect = await bcrypt.compare(req.body.password, isUser.password);
         if (!isPasswordCorrect) return sendError(res, 404, "Invalid ceredentials")
 
-        const token = jwt.sign({ id: isUser._id, username: isUser.username }, process.env.JWT)
+        const token = jwt.sign({ id: isUser._id, username: isUser.username }, process.env.JWT, {
+            expiresIn : '1m'
+        })
 
         const { password, ...otherDetails } = isUser._doc
 
@@ -45,7 +47,8 @@ export const login = async (req, res, next) => {
         res.cookie("accessToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'None'
+            sameSite: 'none',
+            maxAge: 60 * 1000
         }).status(200).json({
             success: true,
             status: 200,
@@ -65,9 +68,11 @@ export const logout = (req, res) => {
     res.clearCookie('accessToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'None'
+        sameSite: 'none'
     }).status(200).json({ success: true, message: 'Logged out successfully' });
 };
+
+
 export const checkAuth = (req, res) => {
     res.status(200).json({
         success: true,
