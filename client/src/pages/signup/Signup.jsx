@@ -28,8 +28,8 @@ function Signup() {
         if (!form.current.username.trim() || !form.current.email.trim() || !form.current.password.trim()) return;
 
         try {
-        //    await dispatch(registerUser(form.current))
-        //    navigate('/login')
+           await dispatch(registerUser(form.current))
+           navigate('/otp')
 
         } catch (error) {
             console.log(error);

@@ -8,11 +8,12 @@ export const registerUser = (credentials) => async (dispatch) => {
     try {
         dispatch(signupStart())
 
-        const user = await axios.post('http://localhost:8800/api/auth/signup', credentials, {
+        const res = await axios.post('http://localhost:8800/api/auth/signup', credentials, {
             withCredentials: true
         })
-        console.log(user);
-        if(user.data.success) {
+        console.log(res);
+        localStorage.setItem('tempToken', res.data.token)
+        if(res.data.success) {
 
             dispatch(signupSuccess())
             
