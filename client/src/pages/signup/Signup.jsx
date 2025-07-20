@@ -16,11 +16,11 @@ function Signup() {
     const { isLoading, error, user } = useSelector((state) => state.auth)
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        if (user) {
-            navigate('/')
-        } 
-    }, [user])
+    // useEffect(() => {
+    //     if (user) {
+    //         navigate('/')
+    //     } 
+    // }, [user])
 
     const handleForm = async(e) => {
         e.preventDefault()
@@ -28,8 +28,8 @@ function Signup() {
         if (!form.current.username.trim() || !form.current.email.trim() || !form.current.password.trim()) return;
 
         try {
-           await dispatch(registerUser(form.current))
-           navigate('/login')
+        //    await dispatch(registerUser(form.current))
+        //    navigate('/login')
 
         } catch (error) {
             console.log(error);

@@ -1,30 +1,60 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js'
-import {  sendError } from '../utils/error.js'
+import { sendError } from '../utils/error.js'
 import bcrypt from "bcryptjs";
+import { generateEmail, GenerateToken, VerifyToken } from '../utils/commonFunctions.js';
+import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
+
+    const { username, email, password } = req.body
+
+    if (!username || !email || !password) return sendError(res, 400, 'All fields are required')
+
     try {
+
+        const user = await User.findOne({ email: email });
+        if (user) {
+            return sendError(res, 409, "Your email is already Exists")
+        }
+
+        const userNameValidation = await User.findOne({ userName: username.trim() });
+
+        if (userNameValidation) sendError(res, 409, "UserName aleady taken, please try another")
 
 
         const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(req.body.password, salt);
+        const hash = bcrypt.hashSync(password, salt);
 
-        const newUser = await User({
-            ...req.body,
+        const doc = await User({
+            username,
+            email,
             password: hash
         })
-        await newUser.save()
-        res.status(200).json({
-            success: true,
-            status: 200,
-            data: newUser,
-            message: 'user registered successfully'
+      
 
+        const otp = nanoid().slice(0, 6)
+        doc.otp = otp
+        doc.otpExpires = Date.now() + 600000; // OTP expires in 10 minutes
+        doc.isVerified = false
 
-        })
+        let savedUser = await doc.save();
+
+        console.log(savedUser, "==>> savedUser")
+        const token = GenerateToken({ data: savedUser, expiresIn: '10m' });
+
+        if (savedUser) {
+            const emailSent = await generateEmail(email, otp)
+            console.log(emailSent);
+
+            res.json({ success: true, message: "Signed up Successfully, OTP send to your email address please verify", data: savedUser, token: token })
+        } else {
+            console.log("===>> user didn't saved")
+            sendError(res, 500, "User did not saved")
+        }
+
     } catch (error) {
-        sendError(res, 404, error.message)
+        sendError(res, 500, error.message)
     }
 }
 
@@ -37,8 +67,13 @@ export const login = async (req, res, next) => {
         const isPasswordCorrect = await bcrypt.compare(req.body.password, isUser.password);
         if (!isPasswordCorrect) return sendError(res, 404, "Invalid ceredentials")
 
+        const isVerified = await User.findOne({ isVerified: true, username: req.body.username })
+        if (!isVerified) return sendError(res, 403, "Account already exist. Verify your account")
+
+
+
         const token = jwt.sign({ id: isUser._id, username: isUser.username }, process.env.JWT, {
-            expiresIn : '1m'
+            expiresIn: '1m'
         })
 
         const { password, ...otherDetails } = isUser._doc
@@ -80,4 +115,40 @@ export const checkAuth = (req, res) => {
         data: req.user,
         message: 'user is loggedin'
     });
+}
+
+
+
+export const verifyEmail = async (req, res) => {
+    const { otp } = req.body
+
+    const token = req.header('Authorization')
+
+    console.log(token, 'token ==>>> initiral');
+    if (token.startsWith('Bearer')) {
+
+        console.log(token.split(' ')[1], otp)
+
+        const verifyingUser = VerifyToken(token.split(' ')[1])
+        console.log(verifyingUser, '===>>> verifying user');
+
+        const userDetails = await User.findOne({
+            otp: otp,
+            _id: verifyingUser.result._id,
+            otpExpires: { $gt: new Date() } // only if the OTP is still valid
+        });
+
+        console.log(userDetails, "==>> userDetails")
+
+        if (userDetails) {
+            res.status(200).json({ success: true, message: "OTP is valid" })
+            await User.findByIdAndUpdate(verifyingUser.result._id, {
+                isVerified: true
+            })
+        } else {
+            sendError(res, 404, "OTP is expired")
+        }
+    } else {
+        sendError(res, 404, "No Token Received")
+    }
 }

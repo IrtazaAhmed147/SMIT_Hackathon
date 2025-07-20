@@ -6,6 +6,7 @@ import Signup from './pages/signup/Signup.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
 import ProtectedRoute from './components/protectedRoute/protectedRoute.jsx'
 import ProductsPage from './pages/products/ProductsPage.jsx'
+import Otp from './pages/otp/Otp.jsx'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
+        <Route path='/otp' element={<Otp />} />
 
 
         <Route path='/' index element={

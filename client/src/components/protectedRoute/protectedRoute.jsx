@@ -20,7 +20,7 @@ export default function ProtectedRoute({ children }) {
           localStorage.removeItem("user");
         }
       } catch (error) {
-        console.log('error ==>>>>>', error.response.data);
+        // console.log('error ==>>>>>', error.response.data);
         setIsValid(false);
         localStorage.removeItem("user")
       }
