@@ -3,6 +3,7 @@ import './Otp.css'
 import { Button } from '@mui/material'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { notify } from '../../utils/HelperFunctions'
 
 function Otp() {
 
@@ -12,9 +13,9 @@ function Otp() {
 
     const handleForm = async (e) => {
         e.preventDefault()
-        console.log(form);
+       
         const otp = form.current.inp1 + form.current.inp2 + form.current.inp3 + form.current.inp4 + form.current.inp5 + form.current.inp6
-        console.log(otp);
+       
         
         if(otp.length !== 6) return 
 
@@ -27,13 +28,12 @@ function Otp() {
                     withCredentials: true,
                     headers: {
                         Authorization: `Bearer ${token}`
-                    }
+                    } 
                 }
             );
             navigate('/login')
         } catch (error) {
-            console.log(error);
-            
+             notify('error', error.response.data.message)
         }
 
 
@@ -48,7 +48,7 @@ function Otp() {
             <section className='otp-container'>
                 <div className="otp-box">
                     <h1 className="title">Enter OTP</h1>
-                    <form onClick={handleForm}>
+                    <form onSubmit={handleForm}>
                         <div id="otp-form">
 
                             <input type="text" name='inp1' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />

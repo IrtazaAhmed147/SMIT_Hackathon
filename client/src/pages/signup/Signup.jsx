@@ -7,6 +7,7 @@ import '../login/login.css'
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../redux/actions/authActions';
 import { CircularProgress } from '@mui/material';
+import { notify } from '../../utils/HelperFunctions';
 
 
 function Signup() {
@@ -16,24 +17,26 @@ function Signup() {
     const { isLoading, error, user } = useSelector((state) => state.auth)
     const dispatch = useDispatch()
 
-    // useEffect(() => {
-    //     if (user) {
-    //         navigate('/')
-    //     } 
-    // }, [user])
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        }
+    }, [user])
 
-    const handleForm = async(e) => {
+    const handleForm = async (e) => {
         e.preventDefault()
-        // console.log(form.current);
         if (!form.current.username.trim() || !form.current.email.trim() || !form.current.password.trim()) return;
 
-        try {
-           await dispatch(registerUser(form.current))
-           navigate('/otp')
 
-        } catch (error) {
-            console.log(error);
-        }
+        await dispatch(registerUser(form.current))
+            .then((msg) => {
+                notify('success', msg)
+                navigate('/otp')
+            })
+            .catch((err) => notify('error', err))
+
+
+
 
 
     }
@@ -65,7 +68,7 @@ function Signup() {
                     <button className="button-submit">
                         {isLoading && <CircularProgress color="inherit" size="20px" />}
                         Create Account</button>
-                    {error && <p>{error}</p>}
+                    {/* {error && <p>{error}</p>} */}
                     <p className="p">Already have an account? <Link to={'/login'} className="link">Login</Link>
                     </p>
                 </form>

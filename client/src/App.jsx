@@ -7,14 +7,27 @@ import NotFound from './pages/notFound/NotFound.jsx'
 import ProtectedRoute from './components/protectedRoute/protectedRoute.jsx'
 import ProductsPage from './pages/products/ProductsPage.jsx'
 import Otp from './pages/otp/Otp.jsx'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
 
-  
+
 
   return (
     <>
 
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
       <Routes>
         <Route path='/login' element={<Login />} />
@@ -23,10 +36,12 @@ function App() {
 
 
         <Route path='/' index element={
-          <ProtectedRoute>
+          // <ProtectedRoute>
+          <>
             <Navbar />
             <Home />
-          </ProtectedRoute>
+          </>
+          // </ProtectedRoute>
         } />
 
         <Route path="/product" element={<ProductsPage />} />

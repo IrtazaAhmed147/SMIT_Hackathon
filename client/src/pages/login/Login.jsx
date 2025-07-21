@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/actions/authActions';
 import { CircularProgress } from '@mui/material';
+import { notify } from '../../utils/HelperFunctions';
 function Login() {
 
     const dispatch = useDispatch();
@@ -24,11 +25,10 @@ function Login() {
         e.preventDefault()
 
         if (!form.current.username.trim() || !form.current.password.trim()) return;
-        try {
+
             dispatch(loginUser(form.current))
-        } catch (error) {
-            console.log(error);
-        }
+            .then((msg)=>  notify('success', msg))
+            .catch((err)=>  notify('error', err))
 
 
     }
@@ -60,7 +60,7 @@ function Login() {
                         </div>
                         <span className="span">Forgot password?</span>
                     </div> */}
-                    {error && <p>{error}</p>}
+                    {/* {error && <p>{error}</p>} */}
                     <button disabled={isLoading}  className="button-submit">
                         {isLoading && <CircularProgress color="inherit" size="20px" />}
 

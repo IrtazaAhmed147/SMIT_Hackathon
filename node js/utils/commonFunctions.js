@@ -41,8 +41,6 @@ const { sign, verify } = pkg;
 
 export const GenerateToken = ({ data, expiresIn }) => {
   //make the key more harder
-  console.log(data , '==>> generate token data');
-  
   //expires in should also be from .env file
   //good approach
   return sign({ result: data}, process.env.JWT, {
@@ -51,8 +49,6 @@ export const GenerateToken = ({ data, expiresIn }) => {
 };
 
 export const VerifyToken = (token) => {
-  console.log(token , "token ==>>>");
-  
   return verify(token, process.env.JWT);
 };
 

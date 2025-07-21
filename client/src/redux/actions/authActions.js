@@ -3,7 +3,7 @@ import { loginFailure, loginStart, loginSuccess, signupStart, signupSuccess, sig
 
 
 export const registerUser = (credentials) => async (dispatch) => {
-    console.log(credentials);
+ 
     
     try {
         dispatch(signupStart())
@@ -11,31 +11,34 @@ export const registerUser = (credentials) => async (dispatch) => {
         const res = await axios.post('http://localhost:8800/api/auth/signup', credentials, {
             withCredentials: true
         })
-        console.log(res);
+       
+        
         localStorage.setItem('tempToken', res.data.token)
         if(res.data.success) {
-
             dispatch(signupSuccess())
-            
         }
+        return res.data.message
     } catch (error) {
         dispatch(signupFailure(error.response.data.message))
+        throw error.response.data.message
     }
 }
 
 export const loginUser = (credentials) => async (dispatch) => {
-    console.log(credentials);
+  
 
     try {
         dispatch(loginStart())
 
-        const user = await axios.post('http://localhost:8800/api/auth/login', credentials, {
+        const res = await axios.post('http://localhost:8800/api/auth/login', credentials, {
             withCredentials: true
         })
 
-        dispatch(loginSuccess(user?.data.data))
+        dispatch(loginSuccess(res?.data.data))
+        return res.data.message
     } catch (error) {
 
         dispatch(loginFailure(error.response.data.message))
+        throw error.response.data.message
     }
 }

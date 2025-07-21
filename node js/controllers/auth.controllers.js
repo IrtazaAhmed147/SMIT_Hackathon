@@ -8,19 +8,23 @@ import { nanoid } from 'nanoid'
 export const register = async (req, res, next) => {
 
     const { username, email, password } = req.body
-
+    
     if (!username || !email || !password) return sendError(res, 400, 'All fields are required')
 
     try {
-
+        
         const user = await User.findOne({ email: email });
         if (user) {
-            return sendError(res, 409, "Your email is already Exists")
+            
+            return sendError(res, 409, "Email is already Exists")
         }
 
-        const userNameValidation = await User.findOne({ userName: username.trim() });
-
-        if (userNameValidation) sendError(res, 409, "UserName aleady taken, please try another")
+        const userNameValidation = await User.findOne({ username: username.trim() });
+        
+        if (userNameValidation) {
+            
+            return sendError(res, 409, "UserName aleady taken, please try another")
+        }
 
 
         const salt = bcrypt.genSaltSync(10);
@@ -40,16 +44,13 @@ export const register = async (req, res, next) => {
 
         let savedUser = await doc.save();
 
-        console.log(savedUser, "==>> savedUser")
         const token = GenerateToken({ data: savedUser, expiresIn: '10m' });
 
         if (savedUser) {
             const emailSent = await generateEmail(email, otp)
-            console.log(emailSent);
 
             res.json({ success: true, message: "Signed up Successfully, OTP send to your email address please verify", data: savedUser, token: token })
         } else {
-            console.log("===>> user didn't saved")
             sendError(res, 500, "User did not saved")
         }
 
@@ -124,13 +125,10 @@ export const verifyEmail = async (req, res) => {
 
     const token = req.header('Authorization')
 
-    console.log(token, 'token ==>>> initiral');
     if (token.startsWith('Bearer')) {
 
-        console.log(token.split(' ')[1], otp)
 
         const verifyingUser = VerifyToken(token.split(' ')[1])
-        console.log(verifyingUser, '===>>> verifying user');
 
         const userDetails = await User.findOne({
             otp: otp,
@@ -138,7 +136,6 @@ export const verifyEmail = async (req, res) => {
             otpExpires: { $gt: new Date() } // only if the OTP is still valid
         });
 
-        console.log(userDetails, "==>> userDetails")
 
         if (userDetails) {
             res.status(200).json({ success: true, message: "OTP is valid" })

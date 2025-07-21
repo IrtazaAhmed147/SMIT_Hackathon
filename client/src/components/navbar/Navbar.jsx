@@ -12,11 +12,61 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { userReset } from '../../redux/slices/authSlice';
+import { notify } from '../../utils/HelperFunctions';
 
-const pages = ['Home','About', 'Products', 'Login', 'Join now'];
+const pages = [
+  {
+    name: 'Home',
+    url: '/'
+  },
+  {
+    name: 'About',
+    url: '/about'
+  },
+  {
+    name: 'Products',
+    url: '/products'
+  },
+  {
+    name: 'Login',
+    url: '/login'
+  },
+  {
+    name: 'signup',
+    url: '/signup'
+  },
+]
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Navbar() {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const handleLogout = async () => {
+    console.log('logout');
+    try {
+      const res = await axios.get('http://localhost:8800/api/auth/logout', {
+        withCredentials: true
+      })
+      console.log(res);
+
+      localStorage.removeItem('user')
+      await dispatch(userReset())
+      navigate('/login')
+
+      notify('success', 'User logged out successfully')
+      
+    } catch (error) {
+      console.log(error);
+      notify('error', error.message)
+
+    }
+
+  }
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -86,9 +136,12 @@ function Navbar() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                </MenuItem>
+                <Link to={`${page.url}`}>
+
+                  <MenuItem key={page.name} onClick={handleCloseNavMenu}>
+                    <Typography sx={{ textAlign: 'center' }}>{page.name}</Typography>
+                  </MenuItem>
+                </Link>
               ))}
             </Menu>
           </Box>
@@ -113,13 +166,15 @@ function Navbar() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
+              <Link to={`${page.url}`}>
+                <Button
+                  key={page.name}
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page.name}
+                </Button>
+              </Link>
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
@@ -145,7 +200,13 @@ function Navbar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={() => {
+                  if (setting === 'Logout') {
+                    handleLogout()
+                  } else {
+                    handleCloseUserMenu()
+                  }
+                }}>
                   <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}
