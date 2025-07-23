@@ -15,20 +15,16 @@ dotenv.config()
 // mongodb connection
 const connect = async () => {
     try {
-
         await mongoose.connect(process.env.MONGO)
     } catch (error) {
         console.log('MongoDB connection error', error);
-
     }
 }
 mongoose.connection.on("disconnected", () => {
     console.log("mongoDB disconnected");
-
 })
 mongoose.connection.on("connected", () => {
     console.log("mongoDB connected");
-
 })
 
 // middleware
@@ -61,6 +57,5 @@ app.use('/api/product', productRoute)
 
 app.listen(8800, () => {
     connect()
-    console.log("Server is running at port 8800");
-
+    console.log("Server is running at port 8800" );
 })

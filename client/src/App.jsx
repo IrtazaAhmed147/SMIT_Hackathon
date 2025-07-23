@@ -5,7 +5,7 @@ import Login from './pages/login/Login.jsx'
 import Signup from './pages/signup/Signup.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
 import ProtectedRoute from './components/protectedRoute/protectedRoute.jsx'
-import ProductsPage from './pages/products/ProductsPage.jsx'
+import ProductPage from './pages/products/ProductPage.jsx'
 import Otp from './pages/otp/Otp.jsx'
 import { ToastContainer } from 'react-toastify'
 
@@ -48,7 +48,7 @@ function App() {
           <ProtectedRoute>
             <>
               <Navbar />
-              <ProductsPage />
+              <ProductPage />
             </>
           </ProtectedRoute>
         } />

@@ -1,9 +1,11 @@
 import Product from "../models/product.model.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { sendError } from "../utils/error.js"
 
 export const createProduct = async (req, res, next) => {
 
     try {
+        const imageUrl = req.file ? await uploadOnCloudinary(req.file) : null;
         const newProduct = await Product({
             userId: req.user.id,
             name: req.body.name,
@@ -11,11 +13,12 @@ export const createProduct = async (req, res, next) => {
             price: req.body.price,
             category: req.body.category,
             images: req.body.images,
+            images: imageUrl ? [imageUrl] : [],
         })
 
         await newProduct.save()
 
-        res.status(200).send("product created")
+        res.status(200).json({ status: 200, succes: true, message: 'Product created', product: newProduct });
     } catch (error) {
         sendError(res, 500, error.message)
     }
@@ -24,7 +27,7 @@ export const getProducts = async (req, res, next) => {
 
     const { min, max, name, limit, category, sortBy = 'createdAt', order = 'desc' } = req.query
     const filters = {
-        price: { $gt: min || 1, $lt: max || 9999 }
+        price: { $gt: min || 1, $lt: max || 99999999 }
     }
     if (name && name.trim() !== '') {
         filters.name = { $regex: name, $options: 'i' }
