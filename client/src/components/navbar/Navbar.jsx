@@ -56,7 +56,8 @@ function Navbar() {
       })
 
       localStorage.removeItem('user')
-      dispatch(userReset()).then(() => navigate('/login'))
+      dispatch(userReset())
+      navigate('/login')
 
 
       notify('success', 'User logged out successfully')
