@@ -37,7 +37,6 @@ export const loginUser = (credentials) => async (dispatch) => {
         dispatch(loginSuccess(res?.data.data))
         return res.data.message
     } catch (error) {
-
         dispatch(loginFailure(error.response.data.message))
         throw error.response.data.message
     }

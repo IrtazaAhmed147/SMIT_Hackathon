@@ -74,7 +74,7 @@ export const login = async (req, res, next) => {
 
 
         const token = jwt.sign({ id: isUser._id, username: isUser.username }, process.env.JWT, {
-            expiresIn: '1m'
+            expiresIn: '7d'
         })
 
         const { password, ...otherDetails } = isUser._doc
@@ -84,7 +84,7 @@ export const login = async (req, res, next) => {
             httpOnly: true,
             secure: true,
             sameSite: 'none',
-            maxAge: 60 * 1000
+            maxAge: 7 * 24 * 60 * 60 * 1000
         }).status(200).json({
             success: true,
             status: 200,

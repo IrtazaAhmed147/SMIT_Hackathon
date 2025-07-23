@@ -41,10 +41,18 @@ function App() {
             <Navbar />
             <Home />
           </>
-          // </ProtectedRoute>
+
         } />
 
-        <Route path="/product" element={<ProductsPage />} />
+        <Route path='/products' element={
+          <ProtectedRoute>
+            <>
+              <Navbar />
+              <ProductsPage />
+            </>
+          </ProtectedRoute>
+        } />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
