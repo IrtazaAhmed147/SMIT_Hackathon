@@ -24,8 +24,8 @@ const pages = [
     url: '/'
   },
   {
-    name: 'About',
-    url: '/about'
+    name: 'Create Product',
+    url: '/createProduct'
   },
   {
     name: 'Products',

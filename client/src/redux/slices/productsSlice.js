@@ -4,6 +4,7 @@ const initialState = {
     products: null,
     isLoading: false,
     error: false,
+    message: '',
 }
 const productsSlice = createSlice({
     name: 'product',
@@ -24,8 +25,11 @@ const productsSlice = createSlice({
             state.error = action.payload;
         },
 
-        productReset: (state) => {
-            state.user = null
+
+        productMessage: (state, { payload }) => {
+            state.message = payload
+            state.isLoading = false
+            state.error = null
         }
     }
 })
@@ -33,5 +37,6 @@ const productsSlice = createSlice({
 export const { productFetchStart,
     productFetchSuccess,
     productFetchFailure,
-    productReset } = productsSlice.actions
+    productReset,
+    productMessage } = productsSlice.actions
 export default productsSlice.reducer

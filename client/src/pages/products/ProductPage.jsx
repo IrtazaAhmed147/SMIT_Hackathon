@@ -59,7 +59,7 @@ function ProductPage() {
         </form>
 
       </Box>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', minHeight: '100vh', gap: '10px' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '80%', margin: 'auto', minHeight: '100vh', gap: '10px' }}>
 
         {isLoading ? <div style={{ margin: 'auto' }}><CircularProgress /></div> : (products?.map((product, i) => (
           <ProductCard key={product._id} {...product} />
