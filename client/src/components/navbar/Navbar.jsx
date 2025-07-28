@@ -11,7 +11,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,14 +23,6 @@ const pages = [
     url: '/'
   },
   {
-    name: 'Create Product',
-    url: '/createProduct'
-  },
-  {
-    name: 'Products',
-    url: '/products'
-  },
-  {
     name: 'Login',
     url: '/login'
   },
@@ -40,14 +31,26 @@ const pages = [
     url: '/signup'
   },
 ]
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = [{
+  name: 'Profile',
+  url: '/profile'
+}, {
+  name: 'Account',
+  url: '/account'
+}, {
+  name: 'Dashboard',
+  url: '/dashboard'
+}, {
+  name: 'Logout',
+  url: '/logout'
+}];
 
 function Navbar() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   console.log(user);
-  
+
 
   const handleLogout = async () => {
     try {
@@ -207,21 +210,21 @@ function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => {
-                if (setting === 'Logout' && !user) return null; // hide Logout if no user
+              {settings.map((setting,i) => {
+                if (setting.name === 'Logout' && !user) return null; // hide Logout if no user
                 return (
                   <MenuItem
-                    key={setting}
+                    key={i}
                     onClick={() => {
-                      if (setting === 'Logout') {
+                      if (setting.name === 'Logout') {
                         handleLogout();
                       } else {
+                        navigate(`/${setting.name.toLowerCase()}`);
                         handleCloseUserMenu();
-                        navigate(`/${setting.toLowerCase()}`);
                       }
                     }}
                   >
-                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                    <Typography sx={{ textAlign: 'center' }}>{setting.name}</Typography>
                   </MenuItem>
                 );
               })}

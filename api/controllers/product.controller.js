@@ -5,7 +5,17 @@ import { sendError } from "../utils/error.js"
 export const createProduct = async (req, res, next) => {
 
     try {
-        const imageUrl = req.file ? await uploadOnCloudinary(req.file) : null;
+        // const imageUrl = req.file ? await uploadOnCloudinary(req.files) : null; for single image
+
+        const files = req.files; // Multer gives you an array when using upload.array()
+
+        // Upload each file to Cloudinary
+        const imageUrls = [];
+        for (const file of files) {
+            const url = await uploadOnCloudinary(file);
+            if (url) imageUrls.push(url);
+        }
+        
         const newProduct = await Product({
             userId: req.user.id,
             name: req.body.name,
@@ -13,7 +23,7 @@ export const createProduct = async (req, res, next) => {
             price: req.body.price,
             category: req.body.category,
             images: req.body.images,
-            images: imageUrl ? [imageUrl] : [],
+            images: imageUrls
         })
 
         await newProduct.save()
