@@ -34,6 +34,13 @@ app.use('/api/auth', authRoute)
 
 
 
-app.listen(8800, () => {
-    console.log("Server is running at port 8800");
-})
+
+if (process.env.NODE_ENV !== 'production') {
+    const port = process.env.PORT || 6500;
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
+
+// Export for Vercel
+export default app;

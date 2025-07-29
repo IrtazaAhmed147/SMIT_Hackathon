@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js'
 import { errorHandler } from '../utils/responseHandler.js'
-import bcrypt from "bcryptjs";
+import bcrypt, { compare } from "bcryptjs";
 import { generateEmail, GenerateToken, VerifyToken } from '../utils/commonFunctions.js';
 import { nanoid } from 'nanoid'
 
@@ -59,22 +59,24 @@ export const register = async (req, res, next) => {
 
 
 export const login = async (req, res, next) => {
-    try {
 
-        if (!req.username || !req.password) {
+
+    try {
+        if (!req.body.username || !req.body.password) {
             // return errorHandler(res, 400, "missing fields");
             return errorHandler(res, 400, "missing fields")
         }
 
         // const isExists = await Users.find({ $or: [{ email: email }, { userName: userName }] })
-        const isExists = await User.findOne({ username: username })
+        const isExists = await User.findOne({ username: req.body.username })
+
 
 
         if (!isExists) {
             return errorHandler(res, 400, "User Name not exists, please retry")
         }
         const isPasswordCorrect = await compare(
-            password, isExists.password
+            req.body.password, isExists.password
         );
         if (!isPasswordCorrect) {
             return errorHandler(res, 400, "User Name not exists, please retry")
