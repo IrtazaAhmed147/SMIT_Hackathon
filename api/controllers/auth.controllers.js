@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js'
-import { sendError } from '../utils/error.js'
+import { errorHandler } from '../utils/responseHandler.js'
 import bcrypt from "bcryptjs";
 import { generateEmail, GenerateToken, VerifyToken } from '../utils/commonFunctions.js';
 import { nanoid } from 'nanoid'
@@ -8,23 +8,22 @@ import { nanoid } from 'nanoid'
 export const register = async (req, res, next) => {
 
     const { username, email, password } = req.body
-    
-    if (!username || !email || !password) return sendError(res, 400, 'All fields are required')
+
+    if (!username || !email || !password) return errorHandler(res, 400, "missing fields")
 
     try {
-        
-        const user = await User.findOne({ email: email });
+
+        const user = await User.findOne({ $or: [{ email: email }, { userName: username }] })
         if (user) {
-            
-            return sendError(res, 409, "Email is already Exists")
+
+            return errorHandler(res, 400, "UserName or Email Address already exists, please change and retry")
+        }
+        if (password.length < 8) {
+            return errorHandler(res, 400, "Password length should be minimum 8 characters long")
+
         }
 
-        const userNameValidation = await User.findOne({ username: username.trim() });
-        
-        if (userNameValidation) {
-            
-            return sendError(res, 409, "UserName aleady taken, please try another")
-        }
+
 
 
         const salt = bcrypt.genSaltSync(10);
@@ -35,7 +34,7 @@ export const register = async (req, res, next) => {
             email,
             password: hash
         })
-      
+
 
         const otp = nanoid().slice(0, 6)
         doc.otp = otp
@@ -48,36 +47,49 @@ export const register = async (req, res, next) => {
 
         if (savedUser) {
             const emailSent = await generateEmail(email, otp)
-
-            res.json({ success: true, message: "Signed up Successfully, OTP send to your email address please verify", data: savedUser, token: token })
+            return successHandler(res, 200, "Signed up Successfully, OTP send to your email address please verify", { ...savedUser, token: token })
         } else {
-            sendError(res, 500, "User did not saved")
+            return errorHandler(res, 500, "User did not saved")
         }
 
     } catch (error) {
-        sendError(res, 500, error.message)
+        errorHandler(res, 500, error.message)
     }
 }
 
 
 export const login = async (req, res, next) => {
     try {
-        const isUser = await User.findOne({ username: req.body.username })
-        if (!isUser) return sendError(res, 404, "User not found")
 
-        const isPasswordCorrect = await bcrypt.compare(req.body.password, isUser.password);
-        if (!isPasswordCorrect) return sendError(res, 404, "Invalid ceredentials")
+        if (!req.username || !req.password) {
+            // return errorHandler(res, 400, "missing fields");
+            return errorHandler(res, 400, "missing fields")
+        }
+
+        // const isExists = await Users.find({ $or: [{ email: email }, { userName: userName }] })
+        const isExists = await User.findOne({ username: username })
+
+
+        if (!isExists) {
+            return errorHandler(res, 400, "User Name not exists, please retry")
+        }
+        const isPasswordCorrect = await compare(
+            password, isExists.password
+        );
+        if (!isPasswordCorrect) {
+            return errorHandler(res, 400, "User Name not exists, please retry")
+        }
 
         const isVerified = await User.findOne({ isVerified: true, username: req.body.username })
-        if (!isVerified) return sendError(res, 403, "Account already exist. Verify your account")
+        if (!isVerified) return errorHandler(res, 403, "Account already exist. Verify your account")
 
 
 
-        const token = jwt.sign({ id: isUser._id, username: isUser.username }, process.env.JWT, {
+        const token = jwt.sign({ id: isExists._id, username: isExists.username }, process.env.JWT, {
             expiresIn: '7d'
         })
 
-        const { password, ...otherDetails } = isUser._doc
+        const { password, ...otherDetails } = isExists._doc
 
 
         res.cookie("accessToken", token, {
@@ -96,7 +108,7 @@ export const login = async (req, res, next) => {
 
 
     } catch (error) {
-        sendError(res, 404, error.message)
+        errorHandler(res, 404, error.message)
     }
 }
 
@@ -107,16 +119,6 @@ export const logout = (req, res) => {
         sameSite: 'none'
     }).status(200).json({ success: true, message: 'Logged out successfully' });
 };
-
-
-export const checkAuth = (req, res) => {
-    res.status(200).json({
-        success: true,
-        status: 200,
-        data: req.user,
-        message: 'user is loggedin'
-    });
-}
 
 
 
@@ -143,9 +145,9 @@ export const verifyEmail = async (req, res) => {
                 isVerified: true
             })
         } else {
-            sendError(res, 404, "OTP is expired")
+            errorHandler(res, 404, "OTP is expired")
         }
     } else {
-        sendError(res, 404, "No Token Received")
+        errorHandler(res, 404, "No Token Received")
     }
 }

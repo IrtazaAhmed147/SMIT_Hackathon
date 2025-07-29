@@ -3,8 +3,6 @@ import dotenv from "dotenv"
 import cors from "cors"
 import cookieParser from 'cookie-parser'
 import authRoute from './routes/auth.routes.js'
-import userRoute from './routes/users.route.js'
-import productRoute from './routes/product.routes.js'
 import { connectDB } from './utils/connectDB.js'
 import helmet from "helmet"
 // import mongoSanitize from "express-mongo-sanitize"
@@ -33,12 +31,9 @@ app.use(cors({
 
 // routes
 app.use('/api/auth', authRoute)
-app.use('/api/user', userRoute)
-app.use('/api/product', productRoute)
 
 
 
 app.listen(8800, () => {
-    // connect()
     console.log("Server is running at port 8800");
 })

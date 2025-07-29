@@ -1,4 +1,4 @@
-import axios from "axios"
+import api from '../../utils/common.js'
 import { loginFailure, loginStart, loginSuccess, signupStart, signupSuccess, signupFailure } from "../slices/authSlice"
 
 
@@ -8,7 +8,7 @@ export const registerUser = (credentials) => async (dispatch) => {
     try {
         dispatch(signupStart())
 
-        const res = await axios.post('http://localhost:8800/api/auth/signup', credentials, {
+        const res = await api.post('/auth/signup', credentials, {
             withCredentials: true
         })
        
@@ -25,12 +25,11 @@ export const registerUser = (credentials) => async (dispatch) => {
 }
 
 export const loginUser = (credentials) => async (dispatch) => {
-  
 
     try {
         dispatch(loginStart())
 
-        const res = await axios.post('http://localhost:8800/api/auth/login', credentials, {
+        const res = await api.post('/auth/login', credentials, {
             withCredentials: true
         })
 

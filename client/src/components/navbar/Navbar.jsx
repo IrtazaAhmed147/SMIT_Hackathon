@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/common.js'
 import { useDispatch, useSelector } from 'react-redux';
 import { userReset } from '../../redux/slices/authSlice';
 import { notify } from '../../utils/HelperFunctions';
@@ -54,7 +54,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const res = await axios.get('http://localhost:8800/api/auth/logout', {
+      const res = await api.get('/auth/logout', {
         withCredentials: true
       })
 

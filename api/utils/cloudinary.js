@@ -9,17 +9,14 @@ cloudinary.config({
 
 export const uploadOnCloudinary = async (file) => {
   try {
-    console.log(file, '====>> file');
-    
     const result = await cloudinary.uploader.upload(file.path);
 
     // Delete the file from local storage
     setTimeout(() => fs.unlink(file.path, (err) => {
       if (err) console.error('Error deleting local file:', err);
     }), 5000);
-    console.log(result, 'result ====>> ');
     
-    return result.secure_url; // This is what you save in DB
+    return result.secure_url; 
   } catch (err) {
     console.error('Cloudinary upload failed:', err);
     return null;
