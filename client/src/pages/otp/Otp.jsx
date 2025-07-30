@@ -1,46 +1,50 @@
 import React, { useRef } from 'react'
 import './Otp.css'
-import { Button } from '@mui/material'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { notify } from '../../utils/HelperFunctions'
+import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
 
 function Otp() {
 
-    const form = useRef({})
+    const otp = useRef()
     const token = localStorage.getItem('tempToken')
+    const { user } = useSelector((state) => state.auth)
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        } else if (!token) {
+            navigate('/signup')
+        }
+    }, [user])
+
+
 
     const handleForm = async (e) => {
         e.preventDefault()
-       
-        const otp = form.current.inp1 + form.current.inp2 + form.current.inp3 + form.current.inp4 + form.current.inp5 + form.current.inp6
-       
-        
-        if(otp.length !== 6) return 
-
+        if (otp.current.length !== 6) return
+        if(!token) return
         try {
-            
-            await axios.post(
-                'http://localhost:8800/api/auth/verifyEmail',
-                { otp },
+            const res = await axios.post(
+                'http://localhost:3200/api/auth/verifyEmail',
+                { otp: otp.current },
                 {
                     withCredentials: true,
                     headers: {
                         Authorization: `Bearer ${token}`
-                    } 
+                    }
                 }
             );
+            localStorage.removeItem('tempToken')
+            notify('success', res.data.message)
             navigate('/login')
         } catch (error) {
-             notify('error', error.response.data.message)
+            console.log(error);
+            notify('error', error.response.data.message)
         }
-
-
-        
-
-
-
     }
 
     return (
@@ -50,16 +54,9 @@ function Otp() {
                     <h1 className="title">Enter OTP</h1>
                     <form onSubmit={handleForm}>
                         <div id="otp-form">
-
-                            <input type="text" name='inp1' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />
-                            <input type="text" name='inp2' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />
-                            <input type="text" name='inp3' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />
-                            <input type="text" name='inp4' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />
-                            <input type="text" name='inp5' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />
-                            <input type="text" name='inp6' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="otp-input" maxLength="1" required />
+                            <input type="text" name='input' onChange={(e) => otp.current = e.target.value} className="otp-input" maxLength="6" required />
                         </div>
                         <button id="verify-btn">Verify OTP</button>
-
                     </form>
                 </div>
             </section>

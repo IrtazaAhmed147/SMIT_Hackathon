@@ -2,6 +2,7 @@ import express from 'express'
 
 import {  login, logout, register, verifyEmail } from '../controllers/auth.controllers.js'
 import multer from 'multer'
+import { verifyToken } from '../middleware/verifyToken.js'
 
 const router = express.Router()
 
@@ -25,5 +26,10 @@ router.post('/signup', register)
 router.post('/login', login)
 router.get('/logout', logout)
 router.post('/verifyEmail', verifyEmail)
+router.get('/sample', verifyToken, (req, res)=> {
+    
+    res.send('it is working')
+
+})
 
 export default router

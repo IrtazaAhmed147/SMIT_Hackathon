@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js'
-import { errorHandler } from '../utils/responseHandler.js'
+import { errorHandler, successHandler } from '../utils/responseHandler.js'
 import bcrypt, { compare } from "bcryptjs";
-import { generateEmail, GenerateToken, VerifyToken } from '../utils/commonFunctions.js';
+import { generateEmail, GenerateToken, VerifyEmailToken } from '../utils/commonFunctions.js';
 import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
@@ -47,6 +47,7 @@ export const register = async (req, res, next) => {
 
         if (savedUser) {
             const emailSent = await generateEmail(email, otp)
+
             return successHandler(res, 200, "Signed up Successfully, OTP send to your email address please verify", { ...savedUser, token: token })
         } else {
             return errorHandler(res, 500, "User did not saved")
@@ -73,13 +74,13 @@ export const login = async (req, res, next) => {
 
 
         if (!isExists) {
-            return errorHandler(res, 400, "User Name not exists, please retry")
+            return errorHandler(res, 400, "Invalid Credentials")
         }
         const isPasswordCorrect = await compare(
             req.body.password, isExists.password
         );
         if (!isPasswordCorrect) {
-            return errorHandler(res, 400, "User Name not exists, please retry")
+            return errorHandler(res, 400, "Invalid Credentials")
         }
 
         const isVerified = await User.findOne({ isVerified: true, username: req.body.username })
@@ -94,14 +95,10 @@ export const login = async (req, res, next) => {
         const { password, ...otherDetails } = isExists._doc
 
 
-        res.cookie("accessToken", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        }).status(200).json({
+        res.status(200).json({
             success: true,
             status: 200,
+            token: token,
             data: { ...otherDetails },
             message: 'user loggedin successfully'
 
@@ -115,41 +112,58 @@ export const login = async (req, res, next) => {
 }
 
 export const logout = (req, res) => {
-    res.clearCookie('accessToken', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none'
-    }).status(200).json({ success: true, message: 'Logged out successfully' });
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
 
 
 export const verifyEmail = async (req, res) => {
-    const { otp } = req.body
+    const { otp } = req.body;
+    const token = req.header('Authorization');
 
-    const token = req.header('Authorization')
+    try {
+        if (!token || !token.startsWith('Bearer')) {
+            return errorHandler(res, 401, "No token provided");
+        }
 
-    if (token.startsWith('Bearer')) {
+        const tokenString = token.split(" ")[1];
 
+        let verifyingUser;
+        try {
+         verifyingUser = VerifyEmailToken(tokenString); 
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                return errorHandler(res, 401, "Token has expired");
+            }
+            return errorHandler(res, 400, "Invalid token");
+        }
 
-        const verifyingUser = VerifyToken(token.split(' ')[1])
+        if (!verifyingUser) {
+            return errorHandler(res, 404, "Invalid or expired verification data");
+        }
 
         const userDetails = await User.findOne({
-            otp: otp,
             _id: verifyingUser.result._id,
-            otpExpires: { $gt: new Date() } // only if the OTP is still valid
+            otp,
+            otpExpires: { $gt: new Date() }
         });
 
-
-        if (userDetails) {
-            res.status(200).json({ success: true, message: "OTP is valid" })
-            await User.findByIdAndUpdate(verifyingUser.result._id, {
-                isVerified: true
-            })
-        } else {
-            errorHandler(res, 404, "OTP is expired")
+        if (!userDetails) {
+            return errorHandler(res, 400, "OTP is invalid or expired");
         }
-    } else {
-        errorHandler(res, 404, "No Token Received")
+
+        await User.findByIdAndUpdate(userDetails._id, {
+            isVerified: true,
+            $unset: {
+                otp: "",
+                otpExpires: ""
+            }
+        });
+
+        return res.status(200).json({ success: true, message: "OTP verified successfully" });
+
+    } catch (error) {
+        console.error("Server Error:", error);
+        return errorHandler(res, 500, "Something went wrong");
     }
 }

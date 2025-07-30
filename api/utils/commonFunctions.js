@@ -48,7 +48,7 @@ export const GenerateToken = ({ data, expiresIn }) => {
         })
 };
 
-export const VerifyToken = (token) => {
+export const VerifyEmailToken = (token) => {
   return verify(token, process.env.JWT);
 };
 

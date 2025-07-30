@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
     user: JSON.parse(localStorage.getItem("user")) || null,
+    token: localStorage.getItem("token") || null,
     isLoading: false,
     error: false,
 }
@@ -39,6 +40,7 @@ const authSlice = createSlice({
         },
         userReset: (state)=> {
             state.user = null
+            state.token = null
         }
     }
 })

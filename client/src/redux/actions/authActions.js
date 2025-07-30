@@ -12,8 +12,7 @@ export const registerUser = (credentials) => async (dispatch) => {
             withCredentials: true
         })
        
-        
-        localStorage.setItem('tempToken', res.data.token)
+        localStorage.setItem('tempToken', res.data.data.token)
         if(res.data.success) {
             dispatch(signupSuccess())
         }
@@ -34,8 +33,11 @@ export const loginUser = (credentials) => async (dispatch) => {
         })
 
         dispatch(loginSuccess(res?.data.data))
+        localStorage.setItem("token", res?.data?.token)
         return res.data.message
     } catch (error) {
+        console.log(error);
+        
         dispatch(loginFailure(error.response.data.message))
         throw error.response.data.message
     }

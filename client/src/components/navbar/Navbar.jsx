@@ -49,19 +49,18 @@ function Navbar() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
-  console.log(user);
 
 
   const handleLogout = async () => {
     try {
-      const res = await api.get('/auth/logout', {
-        withCredentials: true
-      })
+      // const res = await api.get('/auth/logout', {
+      //   withCredentials: true
+      // })
 
       localStorage.removeItem('user')
+      localStorage.removeItem('token')
       dispatch(userReset())
       navigate('/login')
-
 
       notify('success', 'User logged out successfully')
 

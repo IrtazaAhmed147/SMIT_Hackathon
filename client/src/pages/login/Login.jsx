@@ -1,16 +1,20 @@
 import { Link, useNavigate } from 'react-router-dom'
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import './login.css'
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/actions/authActions';
 import { CircularProgress } from '@mui/material';
 import { notify } from '../../utils/HelperFunctions';
+import { useState } from 'react';
 function Login() {
 
     const dispatch = useDispatch();
     const navigate = useNavigate()
+    const [showPass, setShowPass] = useState(false)
     const { isLoading, error, user } = useSelector((state) => state.auth)
     const form = useRef({})
 
@@ -26,11 +30,14 @@ function Login() {
 
         if (!form.current.username.trim() || !form.current.password.trim()) return;
 
-            dispatch(loginUser(form.current))
-            .then((msg)=>  notify('success', msg))
-            .catch((err)=>  notify('error', err))
+        dispatch(loginUser(form.current))
+            .then((msg) => notify('success', msg))
+            .catch((err) => notify('error', err))
 
 
+    }
+    const handleShowPassword = () => {
+        setShowPass((prev) => !prev)
     }
 
 
@@ -50,7 +57,10 @@ function Login() {
                         <label>Password </label></div>
                     <div className="inputForm">
                         <LockOutlinedIcon />
-                        <input placeholder="Enter your Password" name='password' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="input" type="password" required />
+                        <input placeholder="Enter your Password" name='password' onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }} className="input" type={showPass ? "text" : "password"} required />
+                        <div onClick={handleShowPassword} style={{cursor: 'pointer'}}>
+                            {showPass ? <VisibilityIcon />:  <VisibilityOffIcon /> }
+                        </div>
                     </div>
 
                     {/* <div className="flex-row">
@@ -61,10 +71,10 @@ function Login() {
                         <span className="span">Forgot password?</span>
                     </div> */}
                     {/* {error && <p>{error}</p>} */}
-                    <button disabled={isLoading}  className="button-submit">
+                    <button disabled={isLoading} className="button-submit">
                         {isLoading && <CircularProgress color="inherit" size="20px" />}
 
-                         Sign In</button>
+                        Sign In</button>
                     <p className="p">Don't have an account? <Link to={'/signup'} className="link">Sign Up</Link>
                     </p>
                 </form>
