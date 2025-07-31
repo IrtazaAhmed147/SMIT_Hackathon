@@ -44,10 +44,10 @@ export const deleteUser = async (req, res) => {
 export const updateUser = async (req, res) => {
     
     try {
-        const file = req.file;
+        const file = req.file
         if(file) {
-              const url = await uploadOnCloudinary(file);
-              req.body.image = url
+              const url = await uploadOnCloudinary(file,'user-images');
+              req.body.profilePic = url.secure_url
         }
         const userData = await User.findByIdAndUpdate(req.params.id, {
             $set: req.body,
