@@ -2,9 +2,10 @@ import express from 'express'
 import dotenv from "dotenv"
 import cors from "cors"
 import cookieParser from 'cookie-parser'
-import authRoute from './routes/auth.routes.js'
 import { connectDB } from './utils/connectDB.js'
 import helmet from "helmet"
+import { userRouter } from './routes/userRoute.js'
+import { authRouter } from './routes/authRoute.js'
 // import mongoSanitize from "express-mongo-sanitize"
 
 const app = express()
@@ -30,7 +31,8 @@ app.use(cors({
 
 
 // routes
-app.use('/api/auth', authRoute)
+app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 
 
 

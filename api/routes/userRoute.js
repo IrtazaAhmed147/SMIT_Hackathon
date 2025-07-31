@@ -1,10 +1,8 @@
-import express from 'express'
+import express from 'express';
+import { deleteUser, getAllUsers,  getSingleUser, updateUser } from '../controllers/userController.js';
+import multer from 'multer';
 
-import {  login, logout, register, verifyEmail } from '../controllers/auth.controllers.js'
-import multer from 'multer'
-import { verifyToken } from '../middleware/verifyToken.js'
-
-const router = express.Router()
+const userRouter = express.Router();
 
 
 const storage = multer.diskStorage({
@@ -22,14 +20,13 @@ const upload = multer({ storage: storage })
 // router.post('/', verifyToken, upload.single('image'), imageUpload)
 // router.post('/', verifyToken, upload.array('image',10), imageUpload)
 
-router.post('/signup', register)
-router.post('/login', login)
-router.get('/logout', logout)
-router.post('/verifyEmail', verifyEmail)
-router.get('/sample', verifyToken, (req, res)=> {
-    
-    res.send('it is working')
 
-})
+userRouter.get('/', getAllUsers)
+userRouter.get('/:id', getSingleUser)
+userRouter.delete('/:id', deleteUser)
+userRouter.put('/:id', upload.single('image'),updateUser)
 
-export default router
+
+
+
+export { userRouter }

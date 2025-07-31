@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/user.model.js'
+import User from '../models/userModel.js'
 import { errorHandler, successHandler } from '../utils/responseHandler.js'
 import bcrypt, { compare } from "bcryptjs";
 import { generateEmail, GenerateToken, VerifyEmailToken } from '../utils/commonFunctions.js';

@@ -5,19 +5,21 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        lowercase: true,
     },
     email: {
         type: String,
         required: true,
         unique: true,
+        lowercase: true,
     },
     password: {
         type: String,
         required: true,
-
+        minlength: 8,
     },
     otp: {
-        type: String,  
+        type: String,
     },
     otpExpires: {
         type: Date,
@@ -26,6 +28,13 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
+    image: {
+        type: String,
+    }
 },
     { timestamps: true }
 )

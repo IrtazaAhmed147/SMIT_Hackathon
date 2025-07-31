@@ -9,7 +9,9 @@ cloudinary.config({
 
 export const uploadOnCloudinary = async (file) => {
   try {
-    const result = await cloudinary.uploader.upload(file.path);
+    const result = await cloudinary.uploader.upload(file.path,{
+      folder: 'user-images' // 👈 your folder on Cloudinary
+    });
 
     // Delete the file from local storage
     setTimeout(() => fs.unlink(file.path, (err) => {
