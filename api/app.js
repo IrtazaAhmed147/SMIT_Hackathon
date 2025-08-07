@@ -1,7 +1,6 @@
 import express from 'express'
 import dotenv from "dotenv"
 import cors from "cors"
-import cookieParser from 'cookie-parser'
 import { connectDB } from './utils/connectDB.js'
 import helmet from "helmet"
 import { userRouter } from './routes/userRoute.js'
@@ -18,13 +17,12 @@ connectDB()
 
 
 // middleware
-app.use(cookieParser())
 app.use(express.json())
 app.use(helmet())
 // app.use(mongoSanitize())
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
 }))
 
@@ -44,5 +42,4 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Export for Vercel
 export default app;
