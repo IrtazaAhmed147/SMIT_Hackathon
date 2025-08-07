@@ -22,7 +22,6 @@ function App() {
       />
 
       <Routes>
-        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/otp" element={<Otp />} />
@@ -30,11 +29,6 @@ function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
         </Route>
-
-
-
-
-
 
         <Route path="*" element={<NotFound />} />
       </Routes>
